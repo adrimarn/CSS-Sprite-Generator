@@ -1,0 +1,113 @@
+#!/usr/bin/php
+<?php
+
+/**
+ * CSS GENERATOR
+ * A sprite generator for HTML use
+ *
+ * @author Adrien Marion <adrien.marion@epitech.eu>
+ */
+
+
+include_once("bin/my_scandir.php");
+include_once("bin/generate_css.php");
+include_once("bin/generate_sprite.php");
+
+
+$name_sprite = 'sprite.png';
+$name_css = 'style.css';
+$isRecursive = false;
+$useSprite = false;
+$dir_path = '.'; // Get the current folder
+
+$shortopts = "h";
+$shortopts .= "r"; // No value required
+$shortopts .= "i:";
+$shortopts .= "s:";
+$shortopts .= "f:";
+$shortopts .= "u";
+
+$longopts = array(
+    "help",
+    "recursive",
+    "output-image:",
+    "output-style:",
+    "folder:",
+    "use-sprite"
+);
+
+$option = getopt($shortopts, $longopts);
+
+if (isset($option["help"]) || isset($option["h"])) {
+    echo "\033[33m
+    CSS_GENERATOR(1)           UserCommands           CSS_GENERATOR(1)" . PHP_EOL .
+        "NAME" . PHP_EOL .
+        "    css_generator - sprite generator for HTML use" . PHP_EOL . PHP_EOL .
+        "SYNOPSIS" . PHP_EOL .
+        "    css_generator [OPTIONS]" . PHP_EOL . PHP_EOL .
+        "DESCRIPTION" . PHP_EOL .
+        "    Concatenate all images inside a folder in one sprite and write a style sheet ready to use." . PHP_EOL .
+        "    Mandatory arguments to long options are mandatory for short options too." . PHP_EOL . PHP_EOL .
+        "    -f,--folder" . PHP_EOL .
+        "          Assets_folder. If blank, retrieves images from current folder." . PHP_EOL . PHP_EOL .
+        "    -r,--recursive" . PHP_EOL .
+        "          Look for images into the assets_folder passed as argument and all of its subdirectories." . PHP_EOL . PHP_EOL .
+        "    -i,--output-image=IMAGE" . PHP_EOL .
+        "          Name of the generated image. If blank, the default name is «sprite.png»." . PHP_EOL . PHP_EOL .
+        "    -s,--output-style=STYLE" . PHP_EOL .
+        "          Name of the generated stylesheet. If blank, the default name is «style.css»." . PHP_EOL . PHP_EOL .
+        "    -u,--use-sprite" . PHP_EOL .
+        "          Use the generated sprite in the stylesheet.\n\033[0m " . PHP_EOL;
+    exit();
+}
+
+if ((isset($option["folder"]) && $option["folder"] != false) || (isset($option["f"]) && $option["f"] != false)) {
+    $dir_path = isset($option["folder"]) ? $option["folder"] : $option["f"]; // Ternaire verification
+    if (!is_dir($dir_path)) {
+        exit("'$dir_path' is not a valid folder." . PHP_EOL);
+    }
+} else {
+    $continue = readline('Folder not specified with \'-f\' command, retrieve images from current folder ? (y/n) : ');
+    if ($continue == 'n' || $continue == 'no') {
+        exit("\033[33mRun the command with --help for usage information\033[0m" . PHP_EOL);
+    }
+}
+
+if (isset($option["recursive"]) || isset($option["r"])) {
+    $isRecursive = true;
+}
+
+if (isset($option["use-sprite"]) || isset($option["u"])) {
+    $useSprite = true;
+}
+
+if (isset($option["output-image"]) || (isset($option["i"]))) {
+
+    $info = new SplFileInfo(isset($option["output-image"]) ? $option["output-image"] : $option["i"]);
+
+    if ($info->getExtension() == "png") {
+        $name_sprite = isset($option["output-image"]) ? $option["output-image"] : $option["i"];
+
+    } elseif ($info->getExtension() !== "png") {
+        $name_sprite = isset($option["output-image"]) ? $option["output-image"] . ".png" : $option["i"] . ".png";
+
+    }
+    unset($info);
+}
+
+if (isset($option["output-style"]) || (isset($option["s"]))) {
+
+    $info = new SplFileInfo(isset($option["output-style"]) ? $option["output-style"] : $option["s"]);
+
+    if ($info->getExtension() == "css") {
+        $name_css = isset($option["output-style"]) ? $option["output-style"] : $option["s"];
+
+    } elseif ($info->getExtension() !== "css") {
+        $name_css = isset($option["output-style"]) ? $option["output-style"] . ".css" : $option["s"] . ".css";
+
+    }
+    unset($info);
+}
+
+
+generate_sprite_css($dir_path, $name_sprite, $name_css, $isRecursive, $useSprite);
