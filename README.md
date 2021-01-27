@@ -1,5 +1,5 @@
 # CSS Sprite Generator
-Student project for [W@C by Epitech](https://www.webacademie.org/). Promo 2023 Strasbourg
+Student project for [W@C by Epitech](https://www.webacademie.org/). Promo 2022 Strasbourg
 
 ## Description
 
